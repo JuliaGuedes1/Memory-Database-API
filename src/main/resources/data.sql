@@ -1,2 +1,2 @@
-INSERT INTO PERSON (first_name, last_name, age) VALUES ('Fulano', 'da Silva', 32)
-INSERT INTO PERSON (first_name, last_name, age) VALUES ('Ciclano', 'Souza', 25)
+INSERT INTO PERSON (first_name, last_name, age, email, password) VALUES ('Fulano', 'da Silva', 32, 'fulano@gmail.com', 'fulano1234')
+INSERT INTO PERSON (first_name, last_name, age, email, password) VALUES ('Ciclano', 'Souza', 25, 'ciclano@gmail.com', 'ciclano123')

@@ -46,6 +46,8 @@ public class PersonController {
         person1.setFirstName(person.getFirstName());
         person1.setLastName(person.getLastName());
         person1.setAge(person.getAge());
+        person1.setEmail(person.getEmail());
+        person1.setPassword(person.getPassword());
         return iPersonRepository.save(person1);
     }
 
