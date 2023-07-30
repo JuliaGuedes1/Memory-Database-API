@@ -12,11 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
 
 @RestController
 public class AuthenticatorController{
@@ -43,11 +40,10 @@ public class AuthenticatorController{
                 return ResponseEntity.badRequest().build();
             }
 
-
-            auth.setToken(generateRandomString());
+            auth.setToken(generateString());
             auth.setExpiration(2L);
 
-            return new ResponseEntity<>(iAuthRepository.save(auth).getToken(), HttpStatus.OK);
+            return new ResponseEntity<>("{\"token\": \"" + iAuthRepository.save(auth).getToken() + "\"}", HttpStatus.OK);
 
         }catch (Exception e){
             logger.error("Erro ao encontar usuario", e);
@@ -55,12 +51,9 @@ public class AuthenticatorController{
         }
     }
 
-    public String generateRandomString() {
-        byte[] array = new byte[7];
-        new Random().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
 
-        return(generatedString);
+    public String generateString() {
+        return UUID.randomUUID().toString();
     }
 
 }

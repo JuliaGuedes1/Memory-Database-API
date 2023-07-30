@@ -2,7 +2,6 @@ package memory.database.api.util;
 
 import memory.database.api.model.Authenticator;
 import memory.database.api.repository.IAuthRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.List;
 
