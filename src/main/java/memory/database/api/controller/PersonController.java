@@ -1,14 +1,16 @@
 package memory.database.api.controller;
 
 import memory.database.api.model.Person;
-import memory.database.api.repository.IAuthRepository;
+import memory.database.api.model.PersonDTO;
 import memory.database.api.repository.IPersonRepository;
-import memory.database.api.util.Validator;
+import memory.database.api.util.Interceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -16,23 +18,37 @@ public class PersonController {
 
     private final IPersonRepository iPersonRepository;
 
-    private final IAuthRepository iAuthRepository;
-
-    private Validator validator;
+    private Interceptor interceptor;
 
     Logger logger = LoggerFactory.getLogger(PersonController.class);
 
 
-    public PersonController(IPersonRepository iPersonRepository, IAuthRepository iAuthRepository) {
+    public PersonController(IPersonRepository iPersonRepository) {
         this.iPersonRepository = iPersonRepository;
-        this.iAuthRepository = iAuthRepository;
-        this.validator = new Validator(iAuthRepository);
+        this.interceptor = new Interceptor();
     }
 
     @GetMapping("person/find-all-person")
-    public List<Person> getAllPerson(){
+    public ResponseEntity<List<PersonDTO>> getAllPerson(@RequestHeader("Authorization") String token){
 
-        return iPersonRepository.findAll();
+        if(!interceptor.validate(token)){
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<Person> personList = iPersonRepository.findAll();
+        List<PersonDTO> personWithoutString = new ArrayList<>();
+
+        PersonDTO personDTO = new PersonDTO();
+        for(Person person: personList){
+            personDTO.setId(person.getId());
+            personDTO.setAge(person.getAge());
+            personDTO.setEmail(person.getEmail());
+            personDTO.setFirstName(person.getFirstName());
+            personDTO.setLastName(person.getLastName());
+            personWithoutString.add(personDTO);
+        }
+
+        return new ResponseEntity<>(personWithoutString, HttpStatus.OK);
 
     }
 
@@ -40,6 +56,15 @@ public class PersonController {
     public Person getPersonById(@PathVariable Long id){
 
         return iPersonRepository.findById(id).get();
+
+        /*PersonDTO personDTO = new PersonDTO();
+        for(Person personi: person){
+            personDTO.setId(personi.getId());
+            personDTO.setAge(personi.getAge());
+            personDTO.setEmail(personi.getEmail());
+            personDTO.setFirstName(personi.getFirstName());
+            personDTO.setLastName(personi.getLastName());
+        }*/
     }
 
     @PostMapping("person/save-person")
@@ -71,7 +96,7 @@ public class PersonController {
     @GetMapping("person/find-all")
     public ResponseEntity<List<Person>> getAll(@RequestHeader("Authorization") String token){
 
-        if(!validator.validate(token)){
+        if(!interceptor.validate(token)){
             return ResponseEntity.badRequest().build();
         }
         return new ResponseEntity<>(iPersonRepository.findAll(), HttpStatus.OK);
