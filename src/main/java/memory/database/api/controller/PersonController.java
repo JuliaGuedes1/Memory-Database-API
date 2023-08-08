@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping(value = "person/")
 public class PersonController {
 
     private final IPersonRepository iPersonRepository;
@@ -28,78 +29,129 @@ public class PersonController {
         this.interceptor = new Interceptor();
     }
 
-    @GetMapping("person/find-all-person")
+    @GetMapping("find-all-person")
     public ResponseEntity<List<PersonDTO>> getAllPerson(@RequestHeader("Authorization") String token){
 
         if(!interceptor.validate(token)){
             return ResponseEntity.badRequest().build();
         }
 
-        List<Person> personList = iPersonRepository.findAll();
-        List<PersonDTO> personWithoutString = new ArrayList<>();
+        try {
+            List<Person> personList = iPersonRepository.findAll();
+            List<PersonDTO> personWithoutString = new ArrayList<>();
 
-        PersonDTO personDTO = new PersonDTO();
-        for(Person person: personList){
-            personDTO.setId(person.getId());
-            personDTO.setAge(person.getAge());
-            personDTO.setEmail(person.getEmail());
-            personDTO.setFirstName(person.getFirstName());
-            personDTO.setLastName(person.getLastName());
-            personWithoutString.add(personDTO);
+            PersonDTO personDTO = new PersonDTO();
+            for(Person person: personList){
+                personDTO.setId(person.getId());
+                personDTO.setAge(person.getAge());
+                personDTO.setEmail(person.getEmail());
+                personDTO.setFirstName(person.getFirstName());
+                personDTO.setLastName(person.getLastName());
+                personWithoutString.add(personDTO);
+            }
+
+            return new ResponseEntity<>(personWithoutString, HttpStatus.OK);
+        }catch (Exception e){
+            logger.error("Erro ao encontrar os usuarios", e);
+
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(personWithoutString, HttpStatus.OK);
 
     }
 
-    @GetMapping("person/find/{id}")
-    public Person getPersonById(@PathVariable Long id){
-
-        return iPersonRepository.findById(id).get();
-
-        /*PersonDTO personDTO = new PersonDTO();
-        for(Person personi: person){
-            personDTO.setId(personi.getId());
-            personDTO.setAge(personi.getAge());
-            personDTO.setEmail(personi.getEmail());
-            personDTO.setFirstName(personi.getFirstName());
-            personDTO.setLastName(personi.getLastName());
-        }*/
-    }
-
-    @PostMapping("person/save-person")
-    public Person savePerson(@RequestBody Person person){
-
-        return iPersonRepository.save(person);
-
-    }
-
-    @PutMapping("person/update-person/{id}")
-    public Person updatePerson(@RequestBody Person person, @PathVariable Long id){
-
-        Person person1 = iPersonRepository.findById(id).get();
-        person1.setFirstName(person.getFirstName());
-        person1.setLastName(person.getLastName());
-        person1.setAge(person.getAge());
-        person1.setEmail(person.getEmail());
-        person1.setPassword(person.getPassword());
-        return iPersonRepository.save(person1);
-    }
-
-    @DeleteMapping("person/delete/{id}")
-    public void deletePerson(@PathVariable Long id){
-
-        iPersonRepository.deleteById(id);
-
-    }
-
-    @GetMapping("person/find-all")
-    public ResponseEntity<List<Person>> getAll(@RequestHeader("Authorization") String token){
+    @GetMapping("find/{id}")
+    public ResponseEntity<PersonDTO> getPersonById(@PathVariable Long id, @RequestHeader("Authorization") String token){
 
         if(!interceptor.validate(token)){
             return ResponseEntity.badRequest().build();
         }
-        return new ResponseEntity<>(iPersonRepository.findAll(), HttpStatus.OK);
+
+        try {
+            Person person = iPersonRepository.findById(id).get();
+
+            PersonDTO personWithoutString = new PersonDTO();
+            personWithoutString.setId(person.getId());
+            personWithoutString.setFirstName(person.getFirstName());
+            personWithoutString.setLastName(person.getLastName());
+            personWithoutString.setAge(person.getAge());
+            personWithoutString.setEmail(person.getEmail());
+
+
+            return new ResponseEntity<>(personWithoutString, HttpStatus.OK);
+        }catch (Exception e){
+            logger.error("Erro ao encontrar o usuario", e);
+
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("save-person")
+    public ResponseEntity savePerson(@RequestBody Person person, @RequestHeader("Authorization") String token){
+
+        if(!interceptor.validate(token)){
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            iPersonRepository.save(person);
+            logger.info("Usuario cadastrado com sucesso!");
+            return new ResponseEntity(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error("Erro ao salvar usuario", e);
+
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+
+    }
+
+    @PutMapping("update-person/{id}")
+    public ResponseEntity updatePerson(@RequestBody Person person, @PathVariable Long id, @RequestHeader("Authorization") String token){
+
+        if(!interceptor.validate(token)){
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            Person person1 = iPersonRepository.findById(id).get();
+            person1.setFirstName(person.getFirstName());
+            person1.setLastName(person.getLastName());
+            person1.setAge(person.getAge());
+            person1.setEmail(person.getEmail());
+            person1.setPassword(person.getPassword());
+
+            logger.info("Usuario atualizado");
+
+            return new ResponseEntity(iPersonRepository.save(person1), HttpStatus.OK);
+
+        }catch (Exception e){
+            logger.error("Erro ao atualizar usuario", e);
+
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity deletePerson(@PathVariable Long id, @RequestHeader("Authorization") String token){
+
+        if(!interceptor.validate(token)){
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            iPersonRepository.deleteById(id);
+
+            logger.info("Usuario deletado com sucesso");
+
+            return new ResponseEntity(HttpStatus.OK);
+
+        }catch (Exception e){
+            logger.error("Erro ao deletar usuario", e);
+            return ResponseEntity.badRequest().build();
+
+        }
 
     }
 
