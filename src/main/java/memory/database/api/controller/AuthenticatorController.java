@@ -54,9 +54,7 @@ public class AuthenticatorController{
                                     .atZone(ZoneId.systemDefault()).toInstant()))
                     .signWith(CHAVE).compact();
 
-            return new ResponseEntity<>(jwtToken, HttpStatus.OK);
-
-            //return new ResponseEntity<>("{\"token\": \"" + iAuthRepository.save(auth).getToken() + "\"}", HttpStatus.OK);
+            return new ResponseEntity<>("{\"token\": \"" + jwtToken + "\"}", HttpStatus.OK);
 
         }catch (Exception e){
             logger.error("Erro ao encontar usuario", e);
