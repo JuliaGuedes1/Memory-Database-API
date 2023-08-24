@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 public class AuthenticatorController{
@@ -60,11 +59,6 @@ public class AuthenticatorController{
             logger.error("Erro ao encontar usuario", e);
             return ResponseEntity.badRequest().build();
         }
-    }
-
-
-    public String generateString() {
-        return UUID.randomUUID().toString();
     }
 
 }

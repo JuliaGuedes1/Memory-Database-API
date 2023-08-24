@@ -40,8 +40,8 @@ public class PersonController {
             List<Person> personList = iPersonRepository.findAll();
             List<PersonDTO> personWithoutString = new ArrayList<>();
 
-            PersonDTO personDTO = new PersonDTO();
             for(Person person: personList){
+                PersonDTO personDTO = new PersonDTO();
                 personDTO.setId(person.getId());
                 personDTO.setAge(person.getAge());
                 personDTO.setEmail(person.getEmail());
